@@ -1408,3 +1408,20 @@ def test_polyval(use_dask, use_datetime):
     da_pv = xr.polyval(da.x, coeffs)
 
     xr.testing.assert_allclose(da, da_pv.T)
+
+
+def test_sum_with_min_count():
+    da = xr.DataArray([[1., 2, 3], [4, 5, 6]])
+    result = da.sum(["dim_0", "dim_1"], min_count=1)
+    expected = xr.DataArray(21.0)
+    assert_identical(result, expected)
+
+    da = xr.DataArray([[1., 2, 3], [4, 5, np.nan]])
+    result = da.sum(["dim_0", "dim_1"], min_count=1)
+    expected = xr.DataArray(15.0)
+    assert_identical(result, expected)
+
+    da = xr.DataArray([[1., 2, 3], [4, 5, np.nan]])
+    result = da.sum(["dim_0", "dim_1"], min_count=2)
+    expected = xr.DataArray(np.nan)
+    assert_identical(result, expected)
